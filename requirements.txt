@@ -1,0 +1,11 @@
+python 3.7
+fastapi
+numpy
+pandas
+uvicorn
+importlib
+parquet
+pyarrow
+fastparquet
+operator
+sklearn
