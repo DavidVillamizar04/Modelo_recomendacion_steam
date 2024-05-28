@@ -54,15 +54,18 @@ async def developer(desarrollador : str):
             - Porcentaje gratis por año
     '''
     
-    mask1 = df_games['developer'] == desarrollador
-    mask2 = df_games['price'] == 0
-    developer = df_games[mask1]
+    data_filtrada = df_games[df_games["developer"].str.lower() == desarrollador]
+    # Cantidad de items por año
+    cantidad_items = data_filtrada.groupby("year")["items_count"].count().to_dict()
+    # Calculamos la cantidad de contenido free por año
+    cantidad_free = data_filtrada[data_filtrada["price"] == 0.0].groupby("year")["items_count"].count().fillna(0).to_dict()
+    # Se calcula el porcentaje free, redondeado a un decimal
+    porcentaje_free = {year: f"{(cantidad_free.get(year, 0) / cantidad_items.get(year, 1)) * 100:.1f}%" for year in cantidad_items}
     
-    gratis = developer[mask2]
-    cantidad_items= developer.groupby('release_year')['id'].count().to_dict()
-    cantidad_gratis = gratis.groupby('release_year')['id'].count().to_dict()
-    porcentaje_gratis = {year: f"{(cantidad_gratis.get(year, 0) / cantidad_items.get(year, 1)) * 100:.1f}%" for year in cantidad_items}
-    total = {'cantidad de items por año':cantidad_items,
-             'Cantidad gratis pos año':cantidad_gratis,
-             'porcentaje gratis por año':porcentaje_gratis}
-    return total
+    # Formato de salida en JSON
+    output = {
+            "Agnos": cantidad_items,
+            "Cantidad de items free": cantidad_free,
+            "Porcentaje free por agno": porcentaje_free
+            }
+    return output
