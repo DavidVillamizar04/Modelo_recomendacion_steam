@@ -69,3 +69,5 @@ async def developer(desarrollador : str):
     total = pd.concat([cantidad_items,cantidad_gratis['Cantidad gratis']], axis=1)
     total['Cantidad gratis'] = total['Cantidad gratis'].fillna(0).astype(int)
     total['Cantidad gratis'] = ((total['Cantidad gratis']/total['Cantidad de items'])*100).astype(int)
+
+    return total
