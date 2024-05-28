@@ -53,23 +53,19 @@ async def developer(desarrollador : str):
             Porcentaje de contenido Free : Porcetnaje de contenidos gratuito
     '''
     
-    lista_diccioanario = {"Anio" : list(),"Cantidad de items" : list(),"Porcentaje de contenido Free" : list()}
-
-    # Filtramos por desarrollador
-    el_desarrollador = df_games[df_games['developer'] == desarrollador]
-    # Calcula el total de items por año
-    cantidad_items = el_desarrollador.groupby('year')['item_id'].count()
-    # Calcula el total de contenido gratis por año
-    cantidad_gratis = el_desarrollador[el_desarrollador['price'] == 0.0].groupby('year')['item_id'].count()
-    # Calcula el porcentaje de contenido gratis por año
-    porcentaje_gratis = (cantidad_gratis / cantidad_items * 100).fillna(0).astype(int)
-    # Damos formato para el retorno de la informacion
-    for year, item_id_counts in cantidad_items.items():
-        lista_diccioanario["Anio"].append(year)
-        lista_diccioanario["Cantidad de items"].append(item_id_counts)
-    for year, item_porc in porcentaje_gratis.items():
-        lista_diccioanario["Porcentaje de contenido Free"].append(item_porc)
+    mask1 = df_games['developer'] == desarrollador
+    mask2 = df_games['price'] == 0
+    developer = df_games[mask1]
     
-    diccionario = pd.DataFrame(lista_diccioanario).to_dict(orient='records')
-    
-    return  "No existen registros" if len(el_desarrollador) == 0 else diccionario
+    gratis = developer[mask2]
+    cantidad_items= developer.groupby('release_year')['id'].count()
+    cantidad_gratis = gratis.groupby('release_year')['id'].count()
+    cantidad_items = cantidad_items.to_dict()
+    cantidad_items = cantidad_items.items()
+    cantidad_gratis = cantidad_gratis.to_dict()
+    cantidad_gratis = cantidad_gratis.items()
+    cantidad_items = pd.DataFrame(cantidad_items, columns=['Año','Cantidad de items'])
+    cantidad_gratis= pd.DataFrame(cantidad_gratis, columns= ['Año','Cantidad gratis'])
+    total = pd.concat([cantidad_items,cantidad_gratis['Cantidad gratis']], axis=1)
+    total['Cantidad gratis'] = total['Cantidad gratis'].fillna(0).astype(int)
+    total['Cantidad gratis'] = ((total['Cantidad gratis']/total['Cantidad de items'])*100).astype(int)
