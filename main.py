@@ -7,17 +7,20 @@ email : davidvilla042211@gmail.com
 Año 2024
 """
 # Importamos las variables que vamos a usar
-import numpy as np
+from fastapi import FastAPI
 import pandas as pd
-from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
-import seaborn as sns
-from sklearn.feature_extraction.text import TfidfVectorizer
+import pyarrow
+import fastparquet
+import parquet
+
+import sklearn as sk
 from sklearn.metrics.pairwise import cosine_similarity
+import operator
+from sklearn.preprocessing import StandardScaler
+import scipy.sparse as sp
+
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 #Leemos los archivos que vamos a usar para las consultas
 df_games = pd.read_parquet(r'Datasets/games.parquet', engine='auto')
@@ -28,7 +31,6 @@ df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
 app = FastAPI( 
     title = 'Machine Learning Operations (MLOps)',
     description='API para realizar consultas',
-    version='1.0 / Jesus Parra (2024)'
 )
 
 # Se muestra en la siguiente ruta un sencillo titulo http://127.0.0.1:8000/
