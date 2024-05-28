@@ -40,7 +40,8 @@ async def inicio():
 @app.get("/developer/{desarrollador}",  tags=['developer'])
 async def developer(desarrollador : str):
     '''
-    Devuelve un diccionario año, cantidad de items y porcentaje de contenido libre por empresa desarrolladora
+    Devuelve un diccionario con tres diccionarios en su interior que contienen: 
+    Cantidad de items publicados por año, cantidad de items gratis y porceentaje de contenido gratis por año
              
     Parametro
     ---------  
@@ -48,9 +49,9 @@ async def developer(desarrollador : str):
     
     Retorna
     -------
-            Anio                         : Año
-            Cantidad Items               : Videos juegos desarrollados
-            Porcentaje de contenido Free : Porcetnaje de contenidos gratuito
+            - Cantidad de items por año
+            - Cantidad gratis pos año
+            - Porcentaje gratis por año
     '''
     
     mask1 = df_games['developer'] == desarrollador
@@ -58,16 +59,10 @@ async def developer(desarrollador : str):
     developer = df_games[mask1]
     
     gratis = developer[mask2]
-    cantidad_items= developer.groupby('release_year')['id'].count()
-    cantidad_gratis = gratis.groupby('release_year')['id'].count()
-    cantidad_items = cantidad_items.to_dict()
-    cantidad_items = cantidad_items.items()
-    cantidad_gratis = cantidad_gratis.to_dict()
-    cantidad_gratis = cantidad_gratis.items()
-    cantidad_items = pd.DataFrame(cantidad_items, columns=['Año','Cantidad de items'])
-    cantidad_gratis= pd.DataFrame(cantidad_gratis, columns= ['Año','Cantidad gratis'])
-    total = pd.concat([cantidad_items,cantidad_gratis['Cantidad gratis']], axis=1)
-    total['Cantidad gratis'] = total['Cantidad gratis'].fillna(0).astype(int)
-    total['Cantidad gratis'] = ((total['Cantidad gratis']/total['Cantidad de items'])*100).astype(int)
-
+    cantidad_items= developer.groupby('release_year')['id'].count().to_dict()
+    cantidad_gratis = gratis.groupby('release_year')['id'].count().to_dict()
+    porcentaje_gratis = {year: f"{(cantidad_gratis.get(year, 0) / cantidad_items.get(year, 1)) * 100:.1f}%" for year in cantidad_items}
+    total = {'cantidad de items por año':cantidad_items,
+             'Cantidad gratis pos año':cantidad_gratis,
+             'porcentaje gratis por año':porcentaje_gratis}
     return total
