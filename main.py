@@ -21,8 +21,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 #Leemos los archivos que vamos a usar para las consultas
 df_games = pd.read_parquet(r'Datasets/games.parquet', engine='auto')
-df_reviews = pd.read_parquet(r'Datasets/reviews.parquet', engine='auto')
-df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
+#df_reviews = pd.read_parquet(r'Datasets/reviews.parquet', engine='auto')
+#df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
 
 
 app = FastAPI( 
