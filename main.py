@@ -7,20 +7,17 @@ email : davidvilla042211@gmail.com
 Año 2024
 """
 # Importamos las variables que vamos a usar
-from fastapi import FastAPI
+import numpy as np
 import pandas as pd
-import pyarrow
-import fastparquet
-import parquet
-
-import sklearn as sk
-from sklearn.metrics.pairwise import cosine_similarity
-import operator
+from fastapi import FastAPI, Query
+from fastapi.responses import HTMLResponse
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
-import scipy.sparse as sp
-
-from sklearn.feature_extraction.text import CountVectorizer
-
+import seaborn as sns
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 #Leemos los archivos que vamos a usar para las consultas
 df_games = pd.read_parquet(r'Datasets/games.parquet', engine='auto')
