@@ -90,6 +90,19 @@ async def userdata( user_id : str ):
         else:    
             porcentaje = (recomendaciones*100)//items
 
-    resultado = f'El usuario {user_id} ha gastado {dinero}, tiene un porcentaje de recomendacion del {porcentaje}% y tiene {items} items'
+    resultado = f'El usuario {user_id} ha gastado ${dinero}, tiene un porcentaje de recomendacion del {porcentaje}% y tiene {items} items'
     
     return resultado
+
+@app.get("/UserForGenre/{genre}")
+async def UserForGenre(genre : str):
+    generos = df_games[['item_id','genres']]
+    generos['genres'] = generos['genres'].fillna('Unassigned gender')
+    df_items2 = pd.merge(df_items, generos, how='left', on=['item_id'], indicator=False)
+    mask1 = df_items2['genres'] == genre
+    df = df_items2[mask1]
+    df = df[['user_id','playtime_forever']]
+    id = df.groupby('user_id')['playtime_forever'].sum().idxmax()
+    horas = df.groupby('user_id')['playtime_forever'].sum().max()
+
+    return f'El usuario con mas horas jugadas para el genero {genre} es {id} con {horas} horas jugadas'
