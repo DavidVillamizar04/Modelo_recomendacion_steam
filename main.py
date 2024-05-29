@@ -112,7 +112,10 @@ async def best_developer_year (año):
     top = df_reviews[['Year','recommend','developer']]
     mask1 = top['Year'] == año
     top = top[mask1]
+    top.drop(columns='Year', inplace=True)
     agrupados = top.groupby('developer')['recommend'].sum().sort_values(ascending=False)
-    top1 = agrupados.head(3)
-    
-    return top1
+    top1 = agrupados[0:1].idxmax()
+    top2 = agrupados[0:2].idxmax()
+    top_3= agrupados[0:3].idxmax()
+
+    return f'Puesto 1: {top1}, Puesto 2: {top2}, Puesto 3: {top_3}'
