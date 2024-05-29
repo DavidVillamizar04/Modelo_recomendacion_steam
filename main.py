@@ -30,11 +30,13 @@ app = FastAPI(
     description='API para realizar consultas',
 )
 
+@app.get("/")
+async def index():
+    return {"Hola! Bienvenido a la API de consulta y recomendación. Por favor dirígete a /docs"}
 
-@app.get('/', tags=['inicio'])
-async def inicio():
-    cuerpo = '<center><h1 style="background-color:#daecfe;">Proyecto Individual Numero 1:<br>Machine Learning Operations (MLOps)</h1></center>'
-    return HTMLResponse(cuerpo)
+@app.get("/about/")
+async def about():
+    return {"PROYECTO INDIVIDUAL Nº1 -Machine Learning Operations (MLOps)"}
 
  
 @app.get("/developer/{desarrollador}")
@@ -54,17 +56,17 @@ async def developer(desarrollador : str):
             - Porcentaje gratis por año
     '''
     
-    mask1 = df_games['developer'] == desarrollador
-    mask2 = df_games['price'] == 0.0
+    mask1 = df_games["developer"] == desarrollador
+    mask2 = df_games["price"] == 0.0
     developer = df_games[mask1]
     
     gratis = developer[mask2]
-    cantidad_items= developer.groupby('release_year')['id'].count().to_dict()
-    cantidad_gratis = gratis.groupby('release_year')['id'].count().to_dict()
+    cantidad_items= developer.groupby("release_year")["id"].count().to_dict()
+    cantidad_gratis = gratis.groupby("release_year")["id"].count().to_dict()
     porcentaje_gratis = {year: f"{(cantidad_gratis.get(year, 0) / cantidad_items.get(year, 1)) * 100:.1f}%" for year in cantidad_items}
-    total = {'cantidad de items por año':cantidad_items,
-             'Cantidad gratis pos año':cantidad_gratis,
-             'porcentaje gratis por año':porcentaje_gratis}
+    total = {"cantidad de items por año":cantidad_items,
+             "Cantidad gratis pos año":cantidad_gratis,
+             "porcentaje gratis por año":porcentaje_gratis}
     return cantidad_items
 
 @app.get("/best_developer_year/{anio}")
