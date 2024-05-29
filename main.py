@@ -30,14 +30,14 @@ app = FastAPI(
     description='API para realizar consultas',
 )
 
-# Se muestra en la siguiente ruta un sencillo titulo http://127.0.0.1:8000/
+
 @app.get('/', tags=['inicio'])
 async def inicio():
     cuerpo = '<center><h1 style="background-color:#daecfe;">Proyecto Individual Numero 1:<br>Machine Learning Operations (MLOps)</h1></center>'
     return HTMLResponse(cuerpo)
 
-# Endpoint http://127.0.0.1:8000/developer/{desarrollador} 
-@app.get("/developer/{desarrollador}",  tags=['developer'])
+ 
+@app.get("/developer/{desarrollador}")
 async def developer(desarrollador : str):
     '''
     Devuelve un diccionario con tres diccionarios en su interior que contienen: 
@@ -55,7 +55,7 @@ async def developer(desarrollador : str):
     '''
     
     mask1 = df_games['developer'] == desarrollador
-    mask2 = df_games['price'] == 0
+    mask2 = df_games['price'] == 0.0
     developer = df_games[mask1]
     
     gratis = developer[mask2]
