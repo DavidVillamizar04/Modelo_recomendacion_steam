@@ -65,4 +65,8 @@ async def developer(desarrollador : str):
     total = {'cantidad de items por año':cantidad_items,
              'Cantidad gratis pos año':cantidad_gratis,
              'porcentaje gratis por año':porcentaje_gratis}
-    return total
+    return cantidad_items
+
+@app.get("/best_developer_year/{anio}")
+async def best_developer_year (año : int):
+    d = 0
