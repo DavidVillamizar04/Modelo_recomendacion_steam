@@ -90,7 +90,7 @@ async def userdata( user_id : str ):
         else:    
             porcentaje = (recomendaciones*100)//items
 
-    resultado = f'El usuario {user_id} ha gastado ${dinero}, tiene un porcentaje de recomendacion del {porcentaje}% y tiene {items} items'
+    resultado = print(f'El usuario {user_id} ha gastado ${dinero}, tiene un porcentaje de recomendacion del {porcentaje}% y tiene {items} items')
     
     return resultado
 
@@ -105,4 +105,14 @@ async def UserForGenre(genre : str):
     id = df.groupby('user_id')['playtime_forever'].sum().idxmax()
     horas = df.groupby('user_id')['playtime_forever'].sum().max()
 
-    return f'El usuario con mas horas jugadas para el genero {genre} es {id} con {horas} horas jugadas'
+    return print(f'El usuario con mas horas jugadas para el genero {genre} es {id} con {horas} horas jugadas')
+
+@app.get("/best_developer_year/{año}")
+async def best_developer_year (año):
+    top = df_reviews[['Year','recommend','developer']]
+    mask1 = top['Year'] == año
+    top = top[mask1]
+    agrupados = top.groupby('developer')['recommend'].sum().sort_values(ascending=False)
+    top1 = agrupados.head(3)
+    
+    return top1
