@@ -21,8 +21,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 #Leemos los archivos que vamos a usar para las consultas
 df_games = pd.read_parquet(r'Datasets/games.parquet', engine='auto')
-#df_reviews = pd.read_parquet(r'Datasets/reviews.parquet', engine='auto')
-#df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
+df_reviews = pd.read_parquet(r'Datasets/reviews.parquet', engine='auto')
+df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
 
 
 app = FastAPI( 
@@ -64,11 +64,32 @@ async def developer(desarrollador : str):
     cantidad_items= developer.groupby("release_year")["id"].count().to_dict()
     cantidad_gratis = gratis.groupby("release_year")["id"].count().to_dict()
     porcentaje_gratis = {year: f"{(cantidad_gratis.get(year, 0) / cantidad_items.get(year, 1)) * 100:.1f}%" for year in cantidad_items}
-    total = {"cantidad de items por año":cantidad_items,
+    total = {
+            "cantidad de items por año":cantidad_items,
              "Cantidad gratis pos año":cantidad_gratis,
-             "porcentaje gratis por año":porcentaje_gratis}
-    return cantidad_items
+             "porcentaje gratis por año":porcentaje_gratis
+            }
+    
+    return total
 
-@app.get("/best_developer_year/{anio}")
-async def best_developer_year (año : int):
-    d = 0
+@app.get("/userdata/{user_id}")
+async def userdata( user_id : str ):
+    usermask = df_items['user_id'] == user_id
+    usermask2 = df_reviews['user_id'] == user_id
+    df_user_items = df_items[usermask]
+    df_user_reco = df_reviews[usermask2]
+    dinero = df_user_items['price'].sum()
+    items = df_user_items['item_id'].count()
+    recomendaciones = df_user_reco['recommend'].count()
+
+    if recomendaciones < 1:
+        porcentaje = 0
+    else:
+        if items < 1:
+            porcentaje = 0
+        else:    
+            porcentaje = (recomendaciones*100)//items
+
+    resultado = f'El usuario {user_id} ha gastado {dinero}, tiene un porcentaje de recomendacion del {porcentaje}% y tiene {items} items'
+    
+    return resultado
