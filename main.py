@@ -141,7 +141,7 @@ def devel_reviews_analys(desarrollador: str):
 
 @app.get("/similaruserrecs/({user})")
 def similar_user_recs(user):
-  
+
     '''Los 5 juegos más recomendados similares recomendados por usuario...'''
     # Se verifica si el usuario está presente en las columnas de piv_table_norm
     if user not in df_user_simil.columns:
