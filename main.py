@@ -23,14 +23,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 df_games = pd.read_parquet(r'Datasets/games.parquet', engine='auto')
 df_reviews = pd.read_parquet(r'Datasets/reviews.parquet', engine='auto')
 df_items = pd.read_parquet(r'Datasets/user_items.parquet', engine='auto')
+piv_table_norm = pd.read_parquet(r"Datasets/piv_table_norm.parquet", engine='auto')
+df_user_simil =pd.read_parquet(r"Datasets/df_user_simil.parquet", engine='auto')
+cosine_sim_df = pd.read_parquet(r"Datasets/cosine_sim_df.parquet", engine='auto')
 
-vectorizer = TfidfVectorizer()
-tfidf_matrix = vectorizer.fit_transform(df_reviews["review"])
-    
-feactures =  np.column_stack([tfidf_matrix.toarray(), df_reviews["recommend"], df_reviews["sentiment_analysis"]])
-
-similarity_matrix = cosine_similarity(feactures)
-df_sentiment_analysis = df_reviews.reset_index(drop=True)
 
 app = FastAPI( 
     title = 'Machine Learning Operations (MLOps)',
@@ -143,63 +139,45 @@ def devel_reviews_analys(desarrollador: str):
 
 # ML: RECOMENDACIÓN USER-ITEM:
 
-@app.get("/recomendacion_juego/{item_id}",  tags=['recomendacion'])
-async def recomendacion_juego (item_id : int):
-    '''
-    <strong>Devuelve una cantidad de 5 juegos recomendado a partir del identifcador de un juego</strong>
-             
-    Parametro
-    ---------
-             item_id : Identificador unico del juego.
-    
-    Retorna
-    -------   
-             Diccionario con una lista de 5 juegos similiares recomendados a partir del ingresado
-    '''
+@app.get("/similaruserrecs/({user})")
+def similar_user_recs(user):
+  
+    '''Los 5 juegos más recomendados similares recomendados por usuario...'''
+    # Se verifica si el usuario está presente en las columnas de piv_table_norm
+    if user not in df_user_simil.columns:
+        return {'message': 'El Usuario no tiene datos disponibles {}'.format(user)}
 
-    producto = df_sentiment_analysis[df_sentiment_analysis['item_id'] == item_id]
-    if not producto.empty:
-        product_index = producto.index[0]
-        product_similarities = similarity_matrix[product_index]
-        most_similar_products_indices = np.argsort(-product_similarities)
-        most_similar_products = df_sentiment_analysis.loc[most_similar_products_indices, 'item_name']
-    else:
-        return "Producto no encontrado"
-    
-    diccionario = {"Juegos recomendados" : list()}
-    similares = most_similar_products[:5]
-    diccionario["Juegos recomendados"] = [similar for similar in similares]
-    diccionario
+    # Se obtienen los usuarios más similares 
+    sim_users = df_user_simil.sort_values(by=user, ascending=False).index[1:11]
 
-    return diccionario
+    best = []  
+    most_common = {}  
 
-# Endpoint http://127.0.0.1:8000/recomendacion_usuario/{user_id}
-@app.get("/recomendacion_usuario/{user_id}",  tags=['recomendacion'])
-async def recomendacion_usuario (user_id):
-    '''
-    <strong>Devuelve una cantidad de 5 juegos recomendado a partir del identifcador unico de un usuario</strong>
-             
-    Parametro
-    ---------
-             user_id : Identificador unico del juego.
-    
-    Retorna
-    -------   
-             Diccionario con una lista de 5 juegos similares recomendados por un usuario
-    '''
+    # Por cada usuario similar, encuentra el juego mejor calificado y lo agrega a la lista 'best'
+    for i in sim_users:
+        max_score = piv_table_norm.loc[:, i].max()
+        best.append(piv_table_norm[piv_table_norm.loc[:, i] == max_score].index.tolist())
 
-    producto = df_sentiment_analysis[df_sentiment_analysis['user_id'] == user_id]
-    if not producto.empty:
-        product_index = producto.index[0]
-        product_similarities = similarity_matrix[product_index]
-        most_similar_products_indices = np.argsort(-product_similarities)
-        most_similar_products = df_sentiment_analysis.loc[most_similar_products_indices, 'item_name']
-    else:
-        return "Producto no encontrado"
-    
-    diccionario = {"Juegos recomendados" : list()}
-    similares = most_similar_products[:5]
-    diccionario["Juegos recomendados"] = [similar for similar in similares]
-    diccionario
+    # Se cuenta cuántas veces se recomienda cada juego
+    for i in range(len(best)):
+        for j in best[i]:
+            if j in most_common:
+                most_common[j] += 1
+            else:
+                most_common[j] = 1
 
-    return diccionario
+    # Se ordenan los juegos de mayor recomendación
+    sorted_list = sorted(most_common.items(), key=lambda x: x[1], reverse=True)
+
+    return dict(sorted_list[:5])
+
+
+
+# RECOMENDACIÓN ITEM-ITEM:
+
+@app.get("/getsimilaritems/({item_id})")
+def get_similar_items(item_id, top_n=5):
+    ''' La función para obtener el top N=5 de items similares al introducido por id de juego'''
+
+    similar_items = cosine_sim_df[item_id].sort_values(ascending=False).head(top_n + 1).iloc[1:]
+    return similar_items
