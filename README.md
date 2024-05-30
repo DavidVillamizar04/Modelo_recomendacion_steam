@@ -10,6 +10,7 @@
 * [ETL](#etl)
 * [Modelo de recomendacion](#modelo-de-recomendacion)
 * [API](#api)
+* [Fuente de datos](#fuente-de-datos)
 
 
 # Introducción 
@@ -41,8 +42,30 @@ Teniendo como punto de partida que los archivos proporsionados se encuentran com
 
 # Modelo de recomendacion
 
-...
+El modelo de recomendación de coseno es una técnica de aprendizaje automático utilizada en sistemas de recomendación. Se basa en calcular la similitud entre elementos, como productos o usuarios, mediante el cálculo del coseno del ángulo entre sus vectores de características. Cuanto más cercano sea el ángulo entre los vectores, mayor será la similitud coseno y más probable será la recomendación. Es una herramienta efectiva y simple que se utiliza en plataformas de comercio electrónico y servicios de streaming para mejorar la relevancia de las recomendaciones.
 
 # API 
 
-..
+<p align=center><img src=Imagenes/API.png><p>
+
+Dentro del desarrollo de la `API` se solicitaban las siguientes consultas ademas de los sistemas de recomendacion:
+
++ def **developer( *`desarrollador` : str* )**:
+    `Cantidad` de items y `porcentaje` de contenido Free por año según empresa desarrolladora. 
+    
++ def **userdata( *`User_id` : str* )**:
+    Debe devolver `cantidad` de dinero gastado por el usuario, el `porcentaje` de recomendación en base a reviews.recommend y `cantidad de items`.
+
++ def **UserForGenre( *`genero` : str* )**:
+    Debe devolver el usuario que acumula más horas jugadas para el género dado y una lista de la acumulación de horas jugadas por año de lanzamiento.
+
++ def **best_developer_year( *`año` : int* )**:
+   Devuelve el top 3 de desarrolladores con juegos MÁS recomendados por usuarios para el año dado. (reviews.recommend = True y comentarios positivos)
+
++ def **developer_reviews_analysis( *`desarrolladora` : str* )**:
+    Según el desarrollador, se devuelve un diccionario con el nombre del desarrollador como llave y una lista con la cantidad total 
+    de registros de reseñas de usuarios que se encuentren categorizados con un análisis de sentimiento como valor positivo o negativo. 
+
+## Fuente de datos
+
++ [Dataset](https://drive.google.com/drive/folders/1HqBG2-sUkz_R3h1dZU5F2uAzpRn7BSpj)
